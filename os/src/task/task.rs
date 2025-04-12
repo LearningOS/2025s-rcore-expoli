@@ -10,7 +10,7 @@ pub struct TaskControlBlock {
     /// The task context
     pub task_cx: TaskContext,
     /// The task syscall time trace
-    pub task_trace: [isize; 10],
+    pub task_trace: [isize; 1024],
 }
 
 /// The status of a task
