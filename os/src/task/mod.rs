@@ -144,21 +144,32 @@ impl TaskManager {
         return current;
     }
     /// current_task trace call 
-    fn get_current_task_call_syscall_id_time(&self, id: usize) -> usize {
+    fn get_current_task_call_syscall_id_time(&self, id: usize) -> isize {
         let inner = self.inner.exclusive_access();
         let current = inner.current_task;
         let call_time = inner.tasks[current].task_trace[id];
         drop(inner);
         return call_time;
     }
+    /// increase current_task trace call
+    fn increase_current_task_call_syscall_id_time(&self, id: usize) {
+        let mut inner = self.inner.exclusive_access();
+        let current = inner.current_task;
+        inner.tasks[current].task_trace[id] += 1;
+        drop(inner);
+    }
 }
 /// get current_task_id
 pub fn get_current_task_id() -> usize {
     TASK_MANAGER.get_current_task_id()
 }
-
-pub fn get_current_task_call_syscall_id_time(id: usize) -> usize {
+/// get current_task trace call
+pub fn get_current_task_call_syscall_id_time(id: usize) -> isize {
     TASK_MANAGER.get_current_task_call_syscall_id_time(id)
+}
+/// increase current_task trace call
+pub fn increase_current_task_call_syscall_id_time(id: usize) {
+    TASK_MANAGER.increase_current_task_call_syscall_id_time(id)
 }
 
 /// Run the first task in task list.
