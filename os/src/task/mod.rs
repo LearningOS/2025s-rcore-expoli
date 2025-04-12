@@ -54,7 +54,7 @@ lazy_static! {
         let mut tasks = [TaskControlBlock {
             task_cx: TaskContext::zero_init(),
             task_status: TaskStatus::UnInit,
-            task_trace: [0; 1024],
+            task_trace: [0; 412],
         }; MAX_APP_NUM];
         for (i, task) in tasks.iter_mut().enumerate() {
             task.task_cx = TaskContext::goto_restore(init_app_cx(i));
@@ -149,7 +149,7 @@ impl TaskManager {
         let current = inner.current_task;
         let call_time = inner.tasks[current].task_trace[id];
         drop(inner);
-        return call_time;
+        return call_time as isize;
     }
     /// increase current_task trace call
     fn increase_current_task_call_syscall_id_time(&self, id: usize) {
