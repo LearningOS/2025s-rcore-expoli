@@ -37,6 +37,12 @@ jobs:
           unset RUSTUP_DIST_SERVER
           unset RUSTUP_UPDATE_ROOT
           unset CARGO_HTTP_MULTIPLEXING
+          # 删除或重置全局配置
+          sed -i '/rsproxy\.cn/d' ~/.cargo/config.toml || true
+          # 或者直接删除配置文件
+          rm -f ~/.cargo/config.toml || true
+          rm -rf ~/.cargo/registry/index/* || true
+          rm -rf ~/.cargo/registry/cache/* || true
           qemu-system-riscv64 --version
           rustup target add riscv64gc-unknown-none-elf
           git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
