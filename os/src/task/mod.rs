@@ -54,7 +54,7 @@ lazy_static! {
         let mut tasks = [TaskControlBlock {
             task_cx: TaskContext::zero_init(),
             task_status: TaskStatus::UnInit,
-            task_trace: [0; 412],
+            task_trace: [0; 474],
         }; MAX_APP_NUM];
         for (i, task) in tasks.iter_mut().enumerate() {
             task.task_cx = TaskContext::goto_restore(init_app_cx(i));
@@ -103,6 +103,7 @@ impl TaskManager {
         let mut inner = self.inner.exclusive_access();
         let current = inner.current_task;
         inner.tasks[current].task_status = TaskStatus::Exited;
+        inner.tasks[current].task_trace = [0; 474];
     }
 
     /// Find next task to run and return task id.
@@ -148,6 +149,9 @@ impl TaskManager {
         let inner = self.inner.exclusive_access();
         let current = inner.current_task;
         let call_time = inner.tasks[current].task_trace[id];
+        // println!("[kernel] get current task id: {}", current);
+        // println!("[kernel] get current task syscall id: {}", id);
+        // println!("[kernel] get current task syscall time: {}", call_time);
         drop(inner);
         return call_time as isize;
     }
@@ -155,6 +159,10 @@ impl TaskManager {
     fn increase_current_task_call_syscall_id_time(&self, id: usize) {
         let mut inner = self.inner.exclusive_access();
         let current = inner.current_task;
+        // println!("[kernel] increase current task id: {}", current);
+        // println!("[kernel] increase current task syscall id: {}", id);
+        // println!("[kernel] increase current task syscall time: {}", inner.tasks[current].task_trace[id]);
+        // println!("[kernel] increase current task syscall time + 1: {}", inner.tasks[current].task_trace[id] + 1);
         inner.tasks[current].task_trace[id] += 1;
         drop(inner);
     }

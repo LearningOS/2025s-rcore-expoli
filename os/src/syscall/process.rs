@@ -43,20 +43,25 @@ pub fn sys_get_time(ts: *mut TimeVal, _tz: usize) -> isize {
 // TODO: implement the syscall
 pub fn sys_trace(_trace_request: usize, _id: usize, _data: usize) -> isize {
     trace!("kernel: sys_trace");
+    // println!("[kernel] sys_trace: {} {} {}", _trace_request, _id, _data);
     match _trace_request {
         0 => {
             let ptr = _id as *const u8;
             let value = unsafe{ ptr.read() };
+            // println!("[kernel] sys_trace: return read value: {}", value);
             value as isize
         },
         1 => {
-            let ptr = _id as *const u8;
-            let data_ptr = _data as *mut u8;
-            unsafe { *data_ptr = *ptr };
+            //   - 如果 trace_request 为 1，则 id 应被视作 *const u8 ，
+            // 表示写入 data （作为 u8，即只考虑最低位的一个字节）到该用户程序 id 地址处。返回值应为0。
+            let ptr = _id as *mut u8;
+            unsafe { *ptr = _data as u8 };
             0
         },
         2 => {
-            get_current_task_call_syscall_id_time(_id)
+            let count =  get_current_task_call_syscall_id_time(_id);
+            // println!("[kernel] sys_trace: return syscall count: {}", count);
+            count
         },
         _ => -1,
     }

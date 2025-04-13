@@ -160,9 +160,10 @@ pub fn sys_trace(_trace_request: usize, _id: usize, _data: usize) -> isize {
             value as isize
         },
         1 => {
-            let ptr = _id as *const u8;
-            let data_ptr = _data as *mut u8;
-            unsafe { *data_ptr = *ptr };
+            //   - 如果 trace_request 为 1，则 id 应被视作 *mut u8 ，
+            // 表示写入 data （作为 u8，即只考虑最低位的一个字节）到该用户程序 id 地址处。返回值应为0。
+            let ptr = _id as *mut u8;
+            unsafe { *ptr = _data as u8 };
             0
         },
         2 => {
@@ -206,3 +207,8 @@ make run BASE=3 LOG=Debug
           cd ci-user && make test CHAPTER=$ID passwd=${{ secrets.BASE_TEST_TOKEN }} > ../output.txt
           cat ../output.txt
 ```
+
+## syscall_trace 1 的情况
+
+- 下面这句话有问题，应该是 视作 *mut u8
+  - 如果 trace_request 为 1，则 id 应被视作 *const u8 ，表示写入 data （作为 u8，即只考虑最低位的一个字节）到该用户程序 id 地址处。返回值应为0。
