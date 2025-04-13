@@ -189,17 +189,20 @@ make run BASE=3 LOG=Debug
 通过查看发现是 cargo 同步 index 的时候会出现超时的现象，因为设置了 rsproxycn 的镜像，GitHub Actions 是直接跑在外网的，不需要设置代理，这个也是引起网络波动的原因，可以通过下面的方法，取消环境变量的设置，来提高 ci 构建的稳定性。
 
 ```yaml
-  basic-test:
-    runs-on: ubuntu-latest
-    outputs:
-      points: ${{ steps.end.outputs.points}}
-    container:
-      image: duskmoon/dev-env:rcore-ci
     steps:
-      # 取消代理配置
-      - name: Unset Rust proxy
+      - uses: actions/checkout@v4
+      - name: Run tests
         run: |
           unset RUSTUP_DIST_SERVER
           unset RUSTUP_UPDATE_ROOT
           unset CARGO_HTTP_MULTIPLEXING
+          qemu-system-riscv64 --version
+          rustup target add riscv64gc-unknown-none-elf
+          git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          git clone https://github.com/LearningOS/rCore-Tutorial-Checker-2025S.git ci-user
+          git clone https://github.com/LearningOS/rCore-Tutorial-Test-2025S.git ci-user/user
+          ID=`git rev-parse --abbrev-ref HEAD | grep -oP 'ch\K[0-9]'`
+          # cd ci-user && make test CHAPTER=$ID passwd=${{ secrets.BASE_TEST_TOKEN }}
+          cd ci-user && make test CHAPTER=$ID passwd=${{ secrets.BASE_TEST_TOKEN }} > ../output.txt
+          cat ../output.txt
 ```
