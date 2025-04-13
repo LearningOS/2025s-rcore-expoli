@@ -38,8 +38,8 @@ jobs:
           unset RUSTUP_UPDATE_ROOT
           unset CARGO_HTTP_MULTIPLEXING
           # 删除或重置全局配置
-          rm ${RUSTUP_HOME}/config.toml || true
-          rm -rf rm ${RUSTUP_HOME}/registry/* || true
+          rm ${CARGO_HOME}/config.toml || true
+          rm -rf rm ${CARGO_HOME}/registry/* || true
           qemu-system-riscv64 --version
           rustup target add riscv64gc-unknown-none-elf
           git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
